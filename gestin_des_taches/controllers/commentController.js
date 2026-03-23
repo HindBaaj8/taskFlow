@@ -1,17 +1,15 @@
-const Comment = require("../models/Comment");
-const Task = require("../models/Task");
+const Task = require("../models/task");
+const Comment = require("../models/comment");
 
 exports.addComment = async (req, res) => {
   try {
     const { content, taskId } = req.body;
 
-    // ✅ check واش task موجودة
     const taskExists = await Task.findById(taskId);
     if (!taskExists) {
       return res.status(404).json({ message: "Task not found" });
     }
 
-    // ✅ إنشاء comment
     const comment = new Comment({
       content,
       task: taskId,
@@ -25,7 +23,6 @@ exports.addComment = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
 
 exports.getCommentsByTask = async (req, res) => {
   try {
