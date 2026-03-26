@@ -6,7 +6,7 @@ const taskController = require("../controllers/taskControllers");
 // CREATE
 router.post("/",taskController.createTask);
 
-// GET ALL (مع filter)
+// GET ALL 
 router.get("/",taskController.getTasks);
 
 // UPDATE

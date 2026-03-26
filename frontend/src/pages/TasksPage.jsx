@@ -23,28 +23,27 @@ export default function TasksPage() {
 
   useEffect(() => { fetchTasks(); }, []);
 
-  // كيتسمى ملي تسقط task فعمود جديد
+  
   const handleDragEnd = async (result) => {
     const { destination, source, draggableId } = result;
 
-    // إلا ما سقطتش فأي عمود
+   
     if (!destination) return;
 
-    // إلا سقطت فنفس العمود
+   
     if (destination.droppableId === source.droppableId) return;
 
     const newStatus = destination.droppableId;
 
-    // نبدلو الـ status فالـ UI مباشرة (optimistic update)
     setTasks(prev =>
       prev.map(t => t._id === draggableId ? { ...t, status: newStatus } : t)
     );
 
-    // نبعتو للـ backend
+   
     try {
       await api.patch(`/tasks/${draggableId}/status`, { status: newStatus });
     } catch (err) {
-      // إلا فشل نرجعو للحالة الأصلية
+      
       fetchTasks();
     }
   };
@@ -54,7 +53,6 @@ export default function TasksPage() {
     fetchTasks();
   };
 
-  // نقسمو الـ tasks حسب الـ status
   const getTasksByStatus = (status) =>
     tasks.filter(t => t.status === status);
 
@@ -96,7 +94,7 @@ export default function TasksPage() {
               padding: 16,
               minHeight: 500
             }}>
-              {/* Header العمود */}
+              {/* Header  */}
               <div style={{
                 display: "flex", justifyContent: "space-between",
                 alignItems: "center", marginBottom: 12
