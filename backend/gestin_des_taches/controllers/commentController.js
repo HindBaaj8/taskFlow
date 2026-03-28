@@ -13,7 +13,6 @@ exports.addComment = async (req, res) => {
     const comment = new Comment({
       content,
       task: taskId,
-      user: req.user.id
     });
 
     await comment.save();
@@ -27,7 +26,6 @@ exports.addComment = async (req, res) => {
 exports.getCommentsByTask = async (req, res) => {
   try {
     const comments = await Comment.find({ task: req.params.taskId })
-      .populate("user", "name email")
       .sort({ createdAt: -1 });
 
     res.json(comments);
