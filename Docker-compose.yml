@@ -105,20 +105,26 @@ services:
       - app-network
 
   # ── React Frontend ────────────────────────────────────────────────
-  
   frontend:
     build: ./frontend
     container_name: frontend
+    restart: unless-stopped
     ports:
-       - '3000:3000'
+      - '3000:3000'
     environment:
-       - REACT_APP_AUTH_URL=http://localhost:3001
-       - REACT_APP_PROJECT_URL=http://localhost:3002
-       - REACT_APP_TASK_URL=http://localhost:3003
-       - REACT_APP_COLLAB_URL=http://localhost:3004
-       - REACT_APP_REPORT_URL=http://localhost:3005
+      - REACT_APP_AUTH_URL=http://localhost:3001
+      - REACT_APP_PROJECT_URL=http://localhost:3002
+      - REACT_APP_TASK_URL=http://localhost:3003
+      - REACT_APP_COLLAB_URL=http://localhost:3004
+      - REACT_APP_REPORT_URL=http://localhost:3005
+    depends_on:
+      - auth-service
+      - project-service
+      - task-service
+      - collab-service
+      - report-service
     networks:
-       - app-network
+      - app-network
 
 volumes:
   mongo_data:
