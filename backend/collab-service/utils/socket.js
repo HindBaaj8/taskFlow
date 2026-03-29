@@ -1,5 +1,5 @@
-const Message = require('./models/Message');
-const Notification = require('./models/Notification');
+const Message = require('../models/message');
+const Notification = require('../models/notification');
 
 // Map userId -> socketId for targeted notifications
 const onlineUsers = new Map();

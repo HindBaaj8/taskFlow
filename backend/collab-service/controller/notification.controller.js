@@ -1,4 +1,4 @@
-const Notification = require('./models/Notification');
+const Notification = require('../models/notification');
 
 /**
  * @desc    Get notifications for logged-in user

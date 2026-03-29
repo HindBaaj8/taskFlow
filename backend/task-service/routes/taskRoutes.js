@@ -1,24 +1,31 @@
 const express = require("express");
 const router = express.Router();
+const { protect } = require('../middleware/auth.middleware');
 
 const taskController = require("../controllers/taskControllers");
 
-// CREATE
-router.post("/",taskController.createTask);
+// All routes protected
+router.use(protect);
 
-// GET ALL 
-router.get("/",taskController.getTasks);
+// CREATE
+router.post("/", taskController.createTask);
+
+// GET ALL (with filters)
+router.get("/", taskController.getTasks);
+
+// GET KANBAN by project
+router.get("/kanban/:projectId", taskController.getKanban);
+
+// GET SINGLE
+router.get("/:id", taskController.getTaskById);
 
 // UPDATE
-router.put("/:id",taskController.updateTask);
-
-// DELETE
-router.delete("/:id",taskController.deleteTask);
+router.put("/:id", taskController.updateTask);
 
 // CHANGE STATUS
-router.patch("/:id/status",taskController.changeStatus);
+router.patch("/:id/status", taskController.changeStatus);
+
+// DELETE
+router.delete("/:id", taskController.deleteTask);
 
 module.exports = router;
-
-// GET TASK BY ID
-router.get("/:id", taskController.getTaskById);

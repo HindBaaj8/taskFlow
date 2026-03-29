@@ -1,2 +1,5 @@
+# ignore environment files
 .env
-mode_modules
+
+# ignore node modules
+**/node_modules/

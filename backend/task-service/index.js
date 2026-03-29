@@ -1,26 +1,26 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const cors = require("cors");
-require("dotenv").config();
-
-const taskRoutes = require("./routes/taskRoutes");
-const commentRoutes = require("./routes/commentRoutes");
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const morgan = require('morgan');
+const connectDB = require('./config/db');
+const { protect } = require('./middleware/auth.middleware');
+const taskRoutes = require('./routes/taskRoutes');
+const commentRoutes = require('./routes/commentRoutes');
 
 const app = express();
+connectDB();
 
 app.use(cors());
 app.use(express.json());
+app.use(morgan('dev'));
 
-// Routes
-app.use("/api/tasks", taskRoutes);
-app.use("/api/comments", commentRoutes);
+app.use('/api/tasks', protect, taskRoutes);
+app.use('/api/comments', protect, commentRoutes);
 
-// Connexion MongoDB
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => {
-    console.log("MongoDB connecté");
-    app.listen(process.env.PORT || 3003, () => {
-      console.log(`Serveur lancé sur le port ${process.env.PORT || 3003}`);
-    });
-  })
-  .catch((err) => console.log("Erreur MongoDB :", err));
+app.get('/health', (req, res) => res.json({ service: 'task-service', status: 'running' }));
+app.use((req, res) => res.status(404).json({ message: `Route ${req.originalUrl} not found` }));
+app.use((err, req, res, next) => res.status(500).json({ message: err.message }));
+
+const PORT = process.env.PORT || 3003;
+app.listen(PORT, () => console.log(`🚀 Task Service running on port ${PORT}`));
+

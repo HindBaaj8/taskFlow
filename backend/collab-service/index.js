@@ -5,7 +5,7 @@ const { Server } = require('socket.io');
 const cors = require('cors');
 const morgan = require('morgan');
 const connectDB = require('./config/db');
-const { socketAuth } = require('./middlewares/auth.middleware');
+const { socketAuth } = require('./middleware/auth.middleware');
 const { setupSocket } = require('./utils/socket');
 
 const messageRoutes = require('./routes/message.routes');

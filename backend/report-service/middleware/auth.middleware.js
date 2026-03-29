@@ -10,7 +10,8 @@ const protect = (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
     next();
-  } catch {
+  } catch (error) {
+    console.error('Auth middleware error:', error);
     return res.status(401).json({ message: 'Invalid or expired token' });
   }
 };
@@ -23,3 +24,4 @@ const restrictTo = (...roles) => (req, res, next) => {
 };
 
 module.exports = { protect, restrictTo };
+

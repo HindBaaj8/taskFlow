@@ -1,4 +1,4 @@
-const Message = require('./models/Message');
+const Message = require('../models/message');
 
 /**
  * @desc    Get chat history for a project

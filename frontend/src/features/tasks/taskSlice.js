@@ -1,27 +1,42 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import { taskAPI } from '../../services/api.js';
+import SocketService from '../../services/socket.js';
 
-const API_URL = 'http://localhost:3001/api/tasks';
+const API_URL = 'http://localhost:3003/api/tasks';
 
 // Fetch tasks by project
 export const fetchTasks = createAsyncThunk(
   'tasks/fetchTasks',
   async ({ projectId }, { rejectWithValue }) => {
     try {
-      const res = await axios.get(`${API_URL}?projectId=${projectId}`);
-      return res.data; // expected: array of tasks
+      const url = projectId ? `${API_URL}?projectId=${projectId}` : API_URL;
+      const res = await taskAPI.get(url);
+      return res.data;
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || err.message);
     }
   }
 );
 
+export const fetchKanban = createAsyncThunk(
+  'tasks/fetchKanban',
+  async (projectId, { rejectWithValue }) => {
+    try {
+      const res = await taskAPI.get(`/kanban/${projectId}`);
+      return res.data; // {todo:[], inProgress:[], done:[]}
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message);
+    }
+  }
+);
+
+
 // Create a new task
 export const createTask = createAsyncThunk(
   'tasks/createTask',
   async (payload, { rejectWithValue }) => {
     try {
-      const res = await axios.post(API_URL, payload);
+      const res = await taskAPI.post(API_URL, payload);
       return res.data;
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || err.message);
@@ -34,7 +49,27 @@ export const updateTaskStatus = createAsyncThunk(
   'tasks/updateTaskStatus',
   async ({ id, status }, { rejectWithValue }) => {
     try {
-      const res = await axios.patch(`${API_URL}/${id}/status`, { status });
+      const res = await taskAPI.patch(`${API_URL}/${id}/status`, { status });
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message);
+    }
+  }
+);
+
+export const moveTask = createAsyncThunk(
+  'tasks/moveTask',
+  async ({ id, newStatus, projectId }, { rejectWithValue }) => {
+    try {
+      const res = await taskAPI.patch(`${API_URL}/${id}/status`, { status: newStatus });
+      SocketService.joinRoom(projectId);
+      SocketService.sendNotification({
+        recipientId: null,
+        type: 'task_moved',
+        message: `Task moved to ${newStatus}`,
+        projectId,
+        taskId: id
+      });
       return res.data;
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || err.message);
@@ -47,7 +82,7 @@ export const deleteTask = createAsyncThunk(
   'tasks/deleteTask',
   async (id, { rejectWithValue }) => {
     try {
-      await axios.delete(`${API_URL}/${id}`);
+      await taskAPI.delete(`${API_URL}/${id}`);
       return id;
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || err.message);
