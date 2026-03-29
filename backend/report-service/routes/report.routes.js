@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getDashboard, getProjectReport, getWorkloadReport } = require('../controllers/report.controller');
+const { getDashboard, getProjectReport, getWorkloadReport } = require('../controller/report.controller');
 const { protect, restrictTo } = require('../middlewares/auth.middleware');
 
 router.use(protect);
