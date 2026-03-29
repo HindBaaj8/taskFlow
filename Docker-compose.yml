@@ -1,0 +1,128 @@
+version: '3.9'
+
+services:
+
+  # ── MongoDB (shared) ──────────────────────────────────────────────
+  mongo:
+    image: mongo:7
+    container_name: mongo
+    restart: unless-stopped
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - app-network
+
+  # ── Auth Service ──────────────────────────────────────────────────
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    restart: unless-stopped
+    ports:
+      - '3001:3001'
+    environment:
+      - PORT=3001
+      - MONGO_URI=mongodb://mongo:27017/projectmanager
+      - JWT_SECRET=your_super_secret_jwt_key_change_in_production
+      - JWT_EXPIRES_IN=7d
+      - NODE_ENV=development
+    depends_on:
+      - mongo
+    networks:
+      - app-network
+
+  # ── Project Service ───────────────────────────────────────────────
+  project-service:
+    build: ./project-service
+    container_name: project-service
+    restart: unless-stopped
+    ports:
+      - '3002:3002'
+    environment:
+      - PORT=3002
+      - MONGO_URI=mongodb://mongo:27017/projectmanager
+      - JWT_SECRET=your_super_secret_jwt_key_change_in_production
+      - NODE_ENV=development
+    depends_on:
+      - mongo
+    networks:
+      - app-network
+
+  # ── Task Service ──────────────────────────────────────────────────
+  task-service:
+    build: ./task-service
+    container_name: task-service
+    restart: unless-stopped
+    ports:
+      - '3003:3003'
+    environment:
+      - PORT=3003
+      - MONGO_URI=mongodb://mongo:27017/projectmanager
+      - JWT_SECRET=your_super_secret_jwt_key_change_in_production
+      - NODE_ENV=development
+    depends_on:
+      - mongo
+    networks:
+      - app-network
+
+  # ── Collab Service ────────────────────────────────────────────────
+  collab-service:
+    build: ./collab-service
+    container_name: collab-service
+    restart: unless-stopped
+    ports:
+      - '3004:3004'
+    environment:
+      - PORT=3004
+      - MONGO_URI=mongodb://mongo:27017/projectmanager
+      - JWT_SECRET=your_super_secret_jwt_key_change_in_production
+      - NODE_ENV=development
+    depends_on:
+      - mongo
+    networks:
+      - app-network
+
+  # ── Report Service ────────────────────────────────────────────────
+  report-service:
+    build: ./report-service
+    container_name: report-service
+    restart: unless-stopped
+    ports:
+      - '3005:3005'
+    environment:
+      - PORT=3005
+      - MONGO_URI=mongodb://mongo:27017/projectmanager
+      - JWT_SECRET=your_super_secret_jwt_key_change_in_production
+      - NODE_ENV=development
+      - PROJECT_SERVICE_URL=http://project-service:3002
+      - TASK_SERVICE_URL=http://task-service:3003
+    depends_on:
+      - mongo
+      - project-service
+      - task-service
+    networks:
+      - app-network
+
+  # ── React Frontend ────────────────────────────────────────────────
+  
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+       - '3000:3000'
+    environment:
+       - REACT_APP_AUTH_URL=http://localhost:3001
+       - REACT_APP_PROJECT_URL=http://localhost:3002
+       - REACT_APP_TASK_URL=http://localhost:3003
+       - REACT_APP_COLLAB_URL=http://localhost:3004
+       - REACT_APP_REPORT_URL=http://localhost:3005
+    networks:
+       - app-network
+
+volumes:
+  mongo_data:
+
+networks:
+  app-network:
+    driver: bridge
